@@ -33,13 +33,26 @@ public class StorageController {
                 .createAccount();
     }
 
+    private final Account loginToInMemorySwift() {
+        // fake account with a 1s delay for each calls
+        // Allows to test high load environments (or poor network performance)
+        return new AccountFactory()
+                .setMock(true)
+                .setTenantName(SWIFT_STORAGE_TENANT)
+                .setMockMillisDelay(250)
+                .createAccount();
+    }
+
     private final String generateFilename() {
         return java.util.UUID.randomUUID().toString();
     }
 
     public String uploadDocument(byte[] newFile, String targetContainer) {
         StopWatch timer = new StopWatch();
-        final Container container = loginToSwift().getContainer(targetContainer);
+        // Actual Login...
+        // final Container container = loginToSwift().getContainer(targetContainer);
+        // MOCK Login
+        final Container container = loginToInMemorySwift().getContainer(targetContainer);
         if (!container.exists()) {
             container.create();
         }
